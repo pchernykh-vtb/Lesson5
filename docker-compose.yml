@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  service-db:
+    image: postgres:14.6-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: lesson5
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  server-backend:
+    image: my_server:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - service-db
+    environment:
+      - SERVER_PORT= 8080
+      # Подменит собой значение spring.datasource.url в application.properties,
+      # чтобы в docker compose была настройка со своим адресом БД.
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://service-db:5432/lesson5
